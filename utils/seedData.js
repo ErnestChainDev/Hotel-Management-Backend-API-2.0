@@ -1,9 +1,13 @@
 const Room = require('../models/Room');
 const Guest = require('../models/Guest');
 const Booking = require('../models/Booking');
+const seedUsers = require('./seedUsers');
 
 const seedData = async () => {
   try {
+    // Seed users
+    await seedUsers();
+
     // Clear existing data
     await Room.deleteMany();
     await Guest.deleteMany();

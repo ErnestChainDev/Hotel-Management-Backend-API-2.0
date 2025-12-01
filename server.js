@@ -10,6 +10,7 @@ const errorHandler = require('./middleware/errorHandler');
 const roomRoutes = require('./routes/roomRoutes');
 const guestRoutes = require('./routes/guestRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -134,6 +135,7 @@ app.get('/api/health', (req, res) => {
 // ============================
 // API ROUTES
 // ============================
+app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/guests', guestRoutes);
 app.use('/api/bookings', bookingRoutes);
