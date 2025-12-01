@@ -5,15 +5,14 @@ const jwt = require('jsonwebtoken');
 const generateToken = (id, username, role) => {
   return jwt.sign(
     { id, username, role },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE || '7d' }
+    process.env.JWT_SECRET
   );
 };
 
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => {
   try {
     const { username, email, password, role } = req.body;
 
@@ -56,23 +55,19 @@ exports.register = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Registration error:', error);
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Registration failed',
-    });
+    next(error); // pass error to global error handler
   }
 };
 
 // @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     console.log('🔐 Login attempt:', email);
 
-    // Validate input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -80,7 +75,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Find user and include password
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({
@@ -89,7 +83,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -98,7 +91,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Generate token
     const token = generateToken(user._id, user.username, user.role);
 
     console.log('✅ User logged in:', user.username);
@@ -116,17 +108,14 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Login error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Login failed',
-    });
+    next(error);
   }
 };
 
 // @desc    Get current logged in user
 // @route   GET /api/auth/me
 // @access  Private
-exports.getMe = async (req, res) => {
+exports.getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
 
@@ -149,17 +138,14 @@ exports.getMe = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Get me error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get user',
-    });
+    next(error);
   }
 };
 
 // @desc    Get all users (admin only)
 // @route   GET /api/auth/users
 // @access  Private/Admin
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find().select('-password');
 
@@ -170,9 +156,6 @@ exports.getAllUsers = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Get users error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get users',
-    });
+    next(error);
   }
 };

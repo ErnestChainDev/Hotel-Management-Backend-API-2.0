@@ -20,7 +20,7 @@ const app = express();
 
 // CORS Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -69,8 +69,8 @@ if (SEED_DATABASE) {
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Hotel Management API',
-    version: '1.0.0',
+    message: 'Hotel Management API with Authentication',
+    version: '2.0.0',
     documentation: 'Visit /api/health to verify API status',
   });
 });
